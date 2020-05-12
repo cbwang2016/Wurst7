@@ -76,12 +76,10 @@ public enum RotationUtils
 		
 		ClientPlayerEntity player = WurstClient.MC.player;
 		float currentYaw = MathHelper.wrapDegrees(player.yaw);
-		float currentPitch = MathHelper.wrapDegrees(player.pitch);
 		
-		float diffYaw = currentYaw - needed.yaw;
-		float diffPitch = currentPitch - needed.pitch;
+		float diffYaw = MathHelper.wrapDegrees(currentYaw - needed.yaw);
 		
-		return Math.sqrt(diffYaw * diffYaw + diffPitch * diffPitch);
+		return Math.abs(diffYaw);
 	}
 	
 	public static double getAngleToLastReportedLookVec(Vec3d vec)

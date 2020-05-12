@@ -17,9 +17,9 @@ import net.wurstclient.settings.SliderSetting;
 public class AutoTotemHack extends Hack
         implements UpdateListener, PacketOutputListener {
 
-    private final CheckboxSetting swapWhileMoving = new CheckboxSetting(
-            "Swap while moving",
-            "Whether or not to swap totem of undying\n"
+    private final CheckboxSetting equipWhileMoving = new CheckboxSetting(
+            "equip while moving",
+            "Whether or not to equip totem of undying\n"
                     + "while the player is moving.\n\n"
                     + "\u00a7c\u00a7lWARNING:\u00a7r" + " This would not be possible\n"
                     + "without cheats. It may raise suspicion.",
@@ -27,16 +27,17 @@ public class AutoTotemHack extends Hack
 
     private final SliderSetting delay =
             new SliderSetting("Delay",
-                    "Amount of ticks to wait before swapping\n"
+                    "Amount of ticks to wait before equipping\n"
                             + "the next totem of undying.",
                     2, 0, 20, 1, SliderSetting.ValueDisplay.INTEGER);
 
     private int timer;
 
     public AutoTotemHack() {
-        super("AutoTotem", "Refill your totem of undying automatically.");
+        super("AutoTotem", "Refill your totem of undying automatically\n"
+                + "when the off-hand slot is empty.");
         setCategory(Category.COMBAT);
-        addSetting(swapWhileMoving);
+        addSetting(equipWhileMoving);
         addSetting(delay);
     }
 
@@ -69,7 +70,7 @@ public class AutoTotemHack extends Hack
         ClientPlayerEntity player = MC.player;
         PlayerInventory inventory = player.inventory;
 
-        if (!swapWhileMoving.isChecked() && (player.input.movementForward != 0
+        if (!equipWhileMoving.isChecked() && (player.input.movementForward != 0
                 || player.input.movementSideways != 0))
             return;
 

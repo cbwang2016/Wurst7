@@ -244,9 +244,9 @@ public final class BowAimbotHack extends Hack
 
 		float velocity = bowPower * 3F;
 
-		double targetVelocityX = (target.getX() - target.lastRenderX);
-		double targetVelocityY = (target.getY() - target.lastRenderY);
-		double targetVelocityZ = (target.getZ() - target.lastRenderZ);
+		double targetVelocityX = target.getVelocity().getX();
+		double targetVelocityY = target.getVelocity().getY();
+		double targetVelocityZ = target.getVelocity().getZ();
 		double playerVelocityX = player.getVelocity().getX();
 		double playerVelocityY = player.getVelocity().getY();
 		double playerVelocityZ = player.getVelocity().getZ();
@@ -277,25 +277,27 @@ public final class BowAimbotHack extends Hack
 
 		if (!Double.isNaN(theta)) {
 			final double epsilon = 0.001;
-			final double deltaTheta = 0.0001;
+			final double deltaTheta = 0.00001;
 			double playerVelocityH = Math.sqrt(playerVelocityX * playerVelocityX + playerVelocityZ * playerVelocityZ);
 			double ft = toBeGotRootFunction(theta, playerVelocityH, playerVelocityY, hDistance, posY, velocity);
 			int count = 0;
 			while ((Math.abs(ft) > epsilon || count <= 5) && count <= 100) {
-				timeEstimated = getEstimatedTime(hDistance, playerVelocityH + velocity * Math.cos(theta));
+				timeEstimated = getEstimatedTime(hDistance, playerVelocityH + velocity * Math.cos(theta)) + 1;
 				posX = target.getX() + targetVelocityX * timeEstimated
-						- player.getX();
+						- (player.getX() - Math.cos(Math.toRadians(player.yaw)) * 0.16);
 				posY = target.getY() + targetVelocityY * timeEstimated
 						+ target.getHeight() * 0.5 - player.getY()
 						- (player.getStandingEyeHeight() - 0.1);
 				posZ = target.getZ() + targetVelocityZ * timeEstimated
-						- player.getZ();
+						- (player.getZ() - Math.sin(Math.toRadians(player.yaw)) * 0.16);
 				hDistance = Math.sqrt(posX * posX + posZ * posZ);
 
 				ft = toBeGotRootFunction(theta, playerVelocityH, playerVelocityY, hDistance, posY, velocity);
-				double error2 =
+				double ft1 =
 						toBeGotRootFunction(theta + deltaTheta, playerVelocityH, playerVelocityY, hDistance, posY, velocity);
-				double dfdt = (error2 - ft) / deltaTheta;
+				double ft2 =
+						toBeGotRootFunction(theta - deltaTheta, playerVelocityH, playerVelocityY, hDistance, posY, velocity);
+				double dfdt = (ft1 - ft2) / (2 * deltaTheta);
 				if (Double.isNaN(dfdt))
 					break;
 
@@ -307,8 +309,10 @@ public final class BowAimbotHack extends Hack
 			if(ft > epsilon || Double.isNaN(ft))
 				WURST.getRotationFaker()
 						.faceVectorClient(target.getBoundingBox().getCenter());
-			else
-				MC.player.pitch = (float)-Math.toDegrees(theta);
+			else {
+				MC.player.pitch = (float) -Math.toDegrees(theta);
+				MC.player.yaw = (float) Math.toDegrees(Math.atan2(posZ, posX)) - 90;
+			}
 		} else {
 			WURST.getRotationFaker()
 					.faceVectorClient(target.getBoundingBox().getCenter());
